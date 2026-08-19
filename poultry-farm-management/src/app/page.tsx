@@ -5,7 +5,7 @@ export default async function HomePage() {
   const state = await loadDashboardState();
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set DATABASE_URL and run migrations to view dashboard data.</p>;
+    return <p className="rounded bg-red-100 p-3 text-red-900">Set SUPABASE_DB_URL (or DATABASE_URL) and run Supabase migrations to view dashboard data.</p>;
   }
 
   if (state.status === "missing_farm") {

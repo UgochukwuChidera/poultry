@@ -19,7 +19,7 @@ export default async function MoneyPage({ searchParams }: { searchParams?: Promi
   const state = await loadMoneyState(from, to);
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set DATABASE_URL and run migrations to track money.</p>;
+    return <p className="rounded bg-red-100 p-3 text-red-900">Set SUPABASE_DB_URL (or DATABASE_URL) and run Supabase migrations to track money.</p>;
   }
 
   if (state.status === "missing_farm") {

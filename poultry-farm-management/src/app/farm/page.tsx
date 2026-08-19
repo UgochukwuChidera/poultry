@@ -8,7 +8,7 @@ export default async function FarmPage() {
   const state = await loadFarmState();
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set DATABASE_URL and run migrations to manage farm data.</p>;
+    return <p className="rounded bg-red-100 p-3 text-red-900">Set SUPABASE_DB_URL (or DATABASE_URL) and run Supabase migrations to manage farm data.</p>;
   }
 
   const { farm, flocks } = state;
