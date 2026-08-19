@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 const nonNegativeInteger = z
-  .number({ coerce: true })
+  .coerce.number()
   .int("Must be a whole number")
   .min(0, "Must be non-negative");
 
 const positiveNumber = z
-  .number({ coerce: true })
+  .coerce.number()
   .positive("Must be greater than zero")
   .finite("Must be a valid number");
 
