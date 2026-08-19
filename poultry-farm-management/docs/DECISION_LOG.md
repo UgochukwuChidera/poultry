@@ -24,3 +24,8 @@
 **Decision:** Future features live in a roadmap rather than being silently implemented in MVP.
 
 **Reason:** Keeps autonomous development agents focused.
+
+## D006 — Inventory quantity handled as components
+**Decision:** During MVP, inventory checks operate on `crates` and `loose eggs` as separate components without crate-to-egg conversion.
+
+**Reason:** Crate capacity is currently an unresolved requirement, so conversion assumptions would introduce undocumented rules.

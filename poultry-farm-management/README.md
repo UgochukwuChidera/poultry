@@ -1,25 +1,37 @@
 # Poultry Farm Management System
 
-A mobile-first management system for a poultry farm with multiple flocks. The MVP centralizes scattered records and provides reliable visibility into egg inventory, income, expenses, and profit.
+Mobile-first poultry farm operations system for farm/flock setup, egg inventory, sales/income, expenses, history, and dashboard summaries.
 
-## MVP
-- Farm and flock management
-- Egg collection
-- Egg inventory in crates + loose eggs
-- Egg sales to retailers/wholesalers
-- Income and expense tracking
-- Basic dashboard
-- History
-
-## Product principle
-Record operational events once; derive inventory, revenue, and profit from those records rather than asking users to maintain duplicate totals.
-
-## Planned stack
-- Next.js + TypeScript
+## Stack
+- Next.js (App Router) + TypeScript
 - PostgreSQL
 - Drizzle ORM
-- Tailwind CSS + shadcn/ui
-- Mobile-first responsive UI
-- Authentication appropriate to the deployment model
+- Tailwind CSS
+- Vitest for domain tests
 
-See `docs/` for the product and engineering blueprint.
+## Setup
+1. Install dependencies:
+   - `npm install`
+2. Configure environment:
+   - `DATABASE_URL=postgres://...`
+3. Apply database migration:
+   - `npm run db:migrate`
+4. Run app:
+   - `npm run dev`
+
+## Quality checks
+- `npm run typecheck`
+- `npm run lint`
+- `npm test`
+
+## MVP coverage in this implementation
+- Farm setup and updates
+- Multi-flock management
+- Egg collection recording by flock
+- Egg inventory from collections/sales/losses
+- Egg sales/income recording with inventory guardrails
+- Expense tracking
+- Transaction history with date filters
+- Dashboard with daily stock/revenue/expense/profit metrics
+
+See `docs/` for full product references and decisions.
