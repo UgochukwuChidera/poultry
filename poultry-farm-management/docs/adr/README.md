@@ -15,3 +15,7 @@ Include:
 - Decision
 - Alternatives considered
 - Consequences
+
+## Current ADRs
+- `ADR-0001-egg-quantity-component-wise.md`
+- `ADR-0006-supabase-backend.md`
