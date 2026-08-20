@@ -1,3 +1,4 @@
+import { MetricCard, Notice, PageHeader } from "@/components/ui";
 import { getDashboardMetrics, getPrimaryFarm } from "@/lib/services/poultry-service";
 import { toDateInputValue } from "@/lib/utils";
 
@@ -5,43 +6,29 @@ export default async function HomePage() {
   const state = await loadDashboardState();
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set SUPABASE_DB_URL (or DATABASE_URL) and run Supabase migrations to view dashboard data.</p>;
+    return <Notice tone="error">Set Supabase URL/key environment variables, or use SUPABASE_DB_URL as a server-only fallback, then run Supabase migrations to view dashboard data.</Notice>;
   }
 
   if (state.status === "missing_farm") {
-    return <p className="rounded bg-amber-100 p-3 text-amber-900">Create your farm first on the Farm page.</p>;
+    return <Notice tone="warning">Create your farm first on the Farm page.</Notice>;
   }
 
   const { metrics } = state;
 
   return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-semibold">Dashboard</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Current stock</h3>
-          <p className="text-lg font-semibold">
-            {metrics.inventory.crates} crates, {metrics.inventory.looseEggs} loose eggs
-          </p>
-        </article>
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Today&apos;s collection</h3>
-          <p className="text-lg font-semibold">
-            {metrics.todayCollection.crates} crates, {metrics.todayCollection.looseEggs} loose eggs
-          </p>
-        </article>
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Today&apos;s revenue</h3>
-          <p className="text-lg font-semibold">₦{metrics.revenue.toFixed(2)}</p>
-        </article>
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Today&apos;s expenses</h3>
-          <p className="text-lg font-semibold">₦{metrics.expenses.toFixed(2)}</p>
-        </article>
-        <article className="rounded border bg-white p-4 sm:col-span-2">
-          <h3 className="text-sm text-gray-600">Today&apos;s profit</h3>
-          <p className="text-xl font-semibold">₦{metrics.profit.toFixed(2)}</p>
-        </article>
+    <section className="space-y-6">
+      <PageHeader title="Farm Dashboard" description="A calm daily overview of your poultry operation using the records already captured in this app." />
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-gray-200 bg-white p-2 text-sm font-medium text-gray-600 shadow-sm">
+        <span className="rounded-full bg-emerald-900 px-4 py-2 text-white">Operations</span>
+        <span className="rounded-full px-4 py-2">Money</span>
+        <span className="rounded-full px-4 py-2">Records</span>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <MetricCard label="Current stock" value={`${metrics.inventory.crates} crates`} helper={`${metrics.inventory.looseEggs} loose eggs available`} />
+        <MetricCard label="Today's collection" value={`${metrics.todayCollection.crates} crates`} helper={`${metrics.todayCollection.looseEggs} loose eggs collected`} />
+        <MetricCard label="Today's revenue" value={`₦${metrics.revenue.toFixed(2)}`} helper="Derived from sales records" />
+        <MetricCard label="Today's expenses" value={`₦${metrics.expenses.toFixed(2)}`} helper="Derived from expense records" />
+        <MetricCard label="Today's profit" value={`₦${metrics.profit.toFixed(2)}`} helper="Revenue minus expenses" />
       </div>
     </section>
   );
