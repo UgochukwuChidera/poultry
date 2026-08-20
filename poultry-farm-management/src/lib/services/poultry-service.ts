@@ -1,5 +1,7 @@
 import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
+import { hasSupabaseApiConfig } from "@/lib/supabase/server";
+import * as supabaseRepository from "@/lib/services/supabase-repository";
 import { eggCollections, eggLosses, eggSales, expenses, farms, flocks } from "@/lib/db/schema";
 import { canSubtractQuantity, computeInventory } from "@/lib/domain/inventory";
 import { computePeriodSummary, sumAmounts } from "@/lib/domain/metrics";
@@ -13,14 +15,22 @@ import {
 } from "@/lib/domain/validation";
 
 export async function getPrimaryFarm() {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.getPrimaryFarmViaSupabase();
+  }
+
   const db = getDb();
   const rows = await db.select().from(farms).orderBy(asc(farms.createdAt)).limit(1);
   return rows[0] ?? null;
 }
 
 export async function createFarm(input: unknown) {
-  const db = getDb();
   const payload = farmInputSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.createFarmViaSupabase(payload);
+  }
+
+  const db = getDb();
   const [result] = await db
     .insert(farms)
     .values({
@@ -33,9 +43,12 @@ export async function createFarm(input: unknown) {
 }
 
 export async function updateFarm(id: string, input: unknown) {
-  const db = getDb();
   const payload = farmInputSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.updateFarmViaSupabase(id, payload);
+  }
 
+  const db = getDb();
   const [result] = await db
     .update(farms)
     .set({
@@ -50,6 +63,10 @@ export async function updateFarm(id: string, input: unknown) {
 }
 
 export async function listFlocks(farmId: string) {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.listFlocksViaSupabase(farmId);
+  }
+
   const db = getDb();
   return db
     .select()
@@ -59,8 +76,12 @@ export async function listFlocks(farmId: string) {
 }
 
 export async function createFlock(input: unknown) {
-  const db = getDb();
   const payload = flockInputSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.createFlockViaSupabase(payload);
+  }
+
+  const db = getDb();
   const [result] = await db
     .insert(flocks)
     .values({
@@ -77,6 +98,10 @@ export async function createFlock(input: unknown) {
 }
 
 export async function getInventory(farmId: string) {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.getInventoryViaSupabase(farmId);
+  }
+
   const db = getDb();
   const [collections, sales, losses] = await Promise.all([
     db
@@ -97,8 +122,12 @@ export async function getInventory(farmId: string) {
 }
 
 export async function recordEggCollection(input: unknown) {
-  const db = getDb();
   const payload = eggCollectionSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.recordEggCollectionViaSupabase(payload);
+  }
+
+  const db = getDb();
   const [result] = await db
     .insert(eggCollections)
     .values({
@@ -115,8 +144,12 @@ export async function recordEggCollection(input: unknown) {
 }
 
 export async function recordEggSale(input: unknown) {
-  const db = getDb();
   const payload = eggSaleSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.recordEggSaleViaSupabase(payload);
+  }
+
+  const db = getDb();
   const currentInventory = await getInventory(payload.farmId);
 
   if (!canSubtractQuantity(currentInventory, { crates: payload.crates, looseEggs: payload.looseEggs })) {
@@ -140,8 +173,12 @@ export async function recordEggSale(input: unknown) {
 }
 
 export async function recordEggLoss(input: unknown) {
-  const db = getDb();
   const payload = eggLossSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.recordEggLossViaSupabase(payload);
+  }
+
+  const db = getDb();
   const currentInventory = await getInventory(payload.farmId);
 
   if (!canSubtractQuantity(currentInventory, { crates: payload.crates, looseEggs: payload.looseEggs })) {
@@ -163,8 +200,12 @@ export async function recordEggLoss(input: unknown) {
 }
 
 export async function recordExpense(input: unknown) {
-  const db = getDb();
   const payload = expenseSchema.parse(input);
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.recordExpenseViaSupabase(payload);
+  }
+
+  const db = getDb();
   const [result] = await db
     .insert(expenses)
     .values({
@@ -180,6 +221,10 @@ export async function recordExpense(input: unknown) {
 }
 
 export async function getDashboardMetrics(farmId: string, date: string) {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.getDashboardMetricsViaSupabase(farmId, date);
+  }
+
   const db = getDb();
   const [inventory, todayCollections, todaySales, todayExpenses] = await Promise.all([
     getInventory(farmId),
@@ -215,6 +260,10 @@ export async function getDashboardMetrics(farmId: string, date: string) {
 }
 
 export async function getPeriodSummary(farmId: string, startDate: string, endDate: string) {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.getPeriodSummaryViaSupabase(farmId, startDate, endDate);
+  }
+
   const db = getDb();
   const [salesRows, expenseRows] = await Promise.all([
     db
@@ -246,6 +295,10 @@ export async function getPeriodSummary(farmId: string, startDate: string, endDat
 }
 
 export async function getHistory(farmId: string, startDate: string, endDate: string) {
+  if (hasSupabaseApiConfig()) {
+    return supabaseRepository.getHistoryViaSupabase(farmId, startDate, endDate);
+  }
+
   const db = getDb();
   const [collections, sales, lossRows, expenseRows] = await Promise.all([
     db

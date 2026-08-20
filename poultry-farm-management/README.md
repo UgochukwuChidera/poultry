@@ -14,10 +14,10 @@ Mobile-first poultry farm operations system for farm/flock setup, egg inventory,
 1. Install dependencies:
    - `npm install`
 2. Configure environment:
-   - `SUPABASE_DB_URL=postgres://...`
    - `NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY=...`
-   - `SUPABASE_SERVICE_ROLE_KEY=...` (server-side only)
+   - `SUPABASE_SERVICE_ROLE_KEY=...` (server-side only; preferred for server actions)
+   - Optional fallback/tooling only: `SUPABASE_DB_URL=postgres://...` or `DATABASE_URL=...`
 3. Apply database migrations (Supabase-authoritative workflow):
    - `npm run db:migrate`
 4. Run app:
@@ -25,7 +25,7 @@ Mobile-first poultry farm operations system for farm/flock setup, egg inventory,
 
 ## Database migration authority
 - Supabase migrations in `supabase/migrations` are authoritative.
-- Drizzle remains for schema/types and application-side queries.
+- Drizzle remains for schema/types, migrations support, and optional server-only fallback queries; runtime reads/writes prefer Supabase URL/key configuration when present.
 - Do not run independent Drizzle and Supabase migration histories against the same database.
 - Read `docs/adr/ADR-0006-supabase-backend.md` before backend/database changes.
 

@@ -6,7 +6,7 @@ export default async function EggsPage() {
   const state = await loadEggsState();
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set SUPABASE_DB_URL (or DATABASE_URL) and run Supabase migrations to manage egg records.</p>;
+    return <p className="rounded bg-red-100 p-3 text-red-900">Set Supabase URL/key env vars (or SUPABASE_DB_URL fallback) and run Supabase migrations to manage egg records.</p>;
   }
 
   if (state.status === "missing_farm") {
