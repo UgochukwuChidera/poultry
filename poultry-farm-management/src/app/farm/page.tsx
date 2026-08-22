@@ -1,80 +1,82 @@
 import { createFarmAction, createFlockAction, updateFarmAction } from "@/app/actions";
 import { getPrimaryFarm, listFlocks } from "@/lib/services/poultry-service";
+import { AppButton, EmptyState, FormCard, Notice, PageHeader, Pill, SelectField, TextField } from "@/components/ui";
 import { toDateInputValue } from "@/lib/utils";
 
-const flockStatuses = ["active", "resting", "sold", "closed"];
+const flockStatuses = ["active", "resting", "sold", "closed"] as const;
 
 export default async function FarmPage() {
   const state = await loadFarmState();
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set Supabase URL/key env vars (or SUPABASE_DB_URL fallback) and run Supabase migrations to manage farm data.</p>;
+    return (
+      <Notice tone="error">Set the Supabase URL and key environment variables, then run Supabase migrations, to manage farm data.</Notice>
+    );
   }
 
   const { farm, flocks } = state;
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-semibold">Farm & Flocks</h2>
+    <section className="space-y-6">
+      <PageHeader title="Farm & Flocks" description="Set up your farm once, then keep flock details up to date as they change." />
 
       {!farm ? (
-        <form action={createFarmAction} className="space-y-2 rounded border bg-white p-4">
-          <h3 className="font-medium">Create farm</h3>
-          <input className="w-full rounded border p-2" name="name" placeholder="Farm name" required />
-          <input className="w-full rounded border p-2" name="location" placeholder="Location (optional)" />
-          <button className="rounded bg-black px-4 py-2 text-white" type="submit">
-            Save farm
-          </button>
-        </form>
+        <FormCard title="Create farm" description="This becomes the workspace for all your daily records.">
+          <form action={createFarmAction} className="space-y-3">
+            <TextField label="Farm name" name="name" placeholder="e.g. Green Acres Poultry" required />
+            <TextField label="Location" name="location" placeholder="Optional" />
+            <AppButton type="submit">Save farm</AppButton>
+          </form>
+        </FormCard>
       ) : (
         <>
-          <form action={updateFarmAction} className="space-y-2 rounded border bg-white p-4">
-            <h3 className="font-medium">Farm details</h3>
-            <input name="farmId" type="hidden" value={farm.id} readOnly />
-            <input className="w-full rounded border p-2" name="name" defaultValue={farm.name} required />
-            <input
-              className="w-full rounded border p-2"
-              name="location"
-              defaultValue={farm.location ?? ""}
-              placeholder="Location"
-            />
-            <button className="rounded bg-black px-4 py-2 text-white" type="submit">
-              Update farm
-            </button>
-          </form>
+          <FormCard title="Farm details" description="Update your farm's name or location.">
+            <form action={updateFarmAction} className="space-y-3">
+              <input name="farmId" type="hidden" value={farm.id} readOnly />
+              <TextField label="Farm name" name="name" defaultValue={farm.name} required />
+              <TextField label="Location" name="location" defaultValue={farm.location ?? ""} placeholder="Optional" />
+              <AppButton type="submit">Update farm</AppButton>
+            </form>
+          </FormCard>
 
-          <form action={createFlockAction} className="space-y-2 rounded border bg-white p-4">
-            <h3 className="font-medium">Add flock</h3>
-            <input name="farmId" type="hidden" value={farm.id} readOnly />
-            <input className="w-full rounded border p-2" name="name" placeholder="Flock name" required />
-            <input className="w-full rounded border p-2" name="startDate" type="date" defaultValue={toDateInputValue()} required />
-            <select className="w-full rounded border p-2" name="status" defaultValue="active">
-              {flockStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-            <input className="w-full rounded border p-2" name="stage" placeholder="Production stage" required />
-            <input className="w-full rounded border p-2" name="notes" placeholder="Notes (optional)" />
-            <button className="rounded bg-black px-4 py-2 text-white" type="submit">
-              Add flock
-            </button>
-          </form>
+          <FormCard title="Add flock" description="A flock is a group of birds managed together.">
+            <form action={createFlockAction} className="space-y-3">
+              <input name="farmId" type="hidden" value={farm.id} readOnly />
+              <TextField label="Flock name" name="name" placeholder="e.g. Layer batch 3" required />
+              <TextField label="Start date" name="startDate" type="date" defaultValue={toDateInputValue()} required />
+              <SelectField label="Status" name="status" defaultValue="active">
+                {flockStatuses.map((status) => (
+                  <option key={status} value={status} className="capitalize">
+                    {status}
+                  </option>
+                ))}
+              </SelectField>
+              <TextField label="Production stage" name="stage" placeholder="e.g. laying" required />
+              <TextField label="Notes" name="notes" placeholder="Optional" />
+              <AppButton type="submit">Add flock</AppButton>
+            </form>
+          </FormCard>
 
-          <div className="space-y-2">
-            <h3 className="font-medium">Flocks</h3>
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold text-stone-950">Flocks</h3>
             {flocks.length === 0 ? (
-              <p className="rounded border bg-white p-3 text-sm text-gray-600">No flocks yet.</p>
+              <EmptyState title="No flocks yet" description="Add your first flock above to start recording collections." />
             ) : (
-              flocks.map((flock) => (
-                <article key={flock.id} className="rounded border bg-white p-3">
-                  <p className="font-semibold">{flock.name}</p>
-                  <p className="text-sm text-gray-600">
-                    Start: {flock.startDate} · Status: {flock.status} · Stage: {flock.stage}
-                  </p>
-                </article>
-              ))
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {flocks.map((flock) => (
+                  <article key={flock.id} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-stone-950">{flock.name}</p>
+                      <Pill tone={flock.status === "active" ? "active" : flock.status === "resting" ? "warning" : "neutral"}>
+                        {flock.status}
+                      </Pill>
+                    </div>
+                    <p className="mt-1 text-sm text-stone-500">
+                      Started {flock.startDate} · {flock.stage}
+                    </p>
+                  </article>
+                ))}
+              </div>
             )}
           </div>
         </>

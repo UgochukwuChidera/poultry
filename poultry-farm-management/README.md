@@ -4,9 +4,8 @@ Mobile-first poultry farm operations system for farm/flock setup, egg inventory,
 
 ## Stack
 - Next.js (App Router) + TypeScript
-- Supabase (backend infrastructure)
-- PostgreSQL
-- Drizzle ORM
+- Supabase (backend infrastructure, accessed via its REST API)
+- PostgreSQL (managed by Supabase)
 - Tailwind CSS
 - Vitest for domain tests
 
@@ -17,7 +16,6 @@ Mobile-first poultry farm operations system for farm/flock setup, egg inventory,
    - `NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY=...`
    - `SUPABASE_SERVICE_ROLE_KEY=...` (server-side only; preferred for server actions)
-   - Optional fallback/tooling only: `SUPABASE_DB_URL=postgres://...` or `DATABASE_URL=...`
 3. Apply database migrations (Supabase-authoritative workflow):
    - `npm run db:migrate`
 4. Run app:
@@ -25,8 +23,7 @@ Mobile-first poultry farm operations system for farm/flock setup, egg inventory,
 
 ## Database migration authority
 - Supabase migrations in `supabase/migrations` are authoritative.
-- Drizzle remains for schema/types, migrations support, and optional server-only fallback queries; runtime reads/writes prefer Supabase URL/key configuration when present.
-- Do not run independent Drizzle and Supabase migration histories against the same database.
+- All application reads/writes go through the Supabase REST API (`src/lib/supabase/server.ts`); there is no direct Postgres connection or ORM in application code.
 - Read `docs/adr/ADR-0006-supabase-backend.md` before backend/database changes.
 
 ## Quality checks

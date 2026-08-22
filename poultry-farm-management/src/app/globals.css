@@ -1,9 +1,43 @@
 @import "tailwindcss";
 
-:root {
+@theme {
+  /* Barn green — primary brand color. Deeper and more particular than a default Tailwind green. */
+  --color-barn-50: #eef3ee;
+  --color-barn-100: #d7e4d5;
+  --color-barn-200: #b2cbae;
+  --color-barn-400: #547e5c;
+  --color-barn-600: #305c40;
+  --color-barn-700: #234a34;
+  --color-barn-800: #1a3a29;
+  --color-barn-900: #12291d;
+  --color-barn-950: #0b1c13;
+
   --font-sans: var(--font-geist-sans);
 }
 
 body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background-image: radial-gradient(circle at 100% 0%, rgba(18, 41, 29, 0.07), transparent 45%);
+  background-attachment: fixed;
+}
+
+@layer utilities {
+  /* Signature motif: a soft egg silhouette used sparingly as a marker, never as decoration alone. */
+  .egg-shape {
+    border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%;
+  }
+
+  /* Signature divider: an egg-carton row, seen from above. Used once, under the dashboard header. */
+  .carton-rule {
+    height: 6px;
+    background-image: radial-gradient(circle, var(--color-barn-200) 1.6px, transparent 1.6px);
+    background-size: 16px 6px;
+    background-repeat: repeat-x;
+    background-position: left center;
+    opacity: 0.8;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }

@@ -108,3 +108,6 @@ The following remain unchanged:
 Only the infrastructure/backend implementation is adjusted to use Supabase.
 
 Read docs/adr/ADR-0006-supabase-backend.md before making further database or backend changes. Reconcile any existing Drizzle migration setup with the ADR; do not create competing migration histories.
+
+## Addendum (post-implementation)
+Drizzle ORM and the direct PostgreSQL connection (`SUPABASE_DB_URL`/`DATABASE_URL`, `src/lib/db/*`) have since been removed from application code. All reads/writes now go through the Supabase REST API exclusively (see `src/lib/supabase/server.ts` and `src/lib/services/supabase-repository.ts`). Supabase migrations under `supabase/migrations` remain the sole, authoritative schema source. This section documents the change; the original decision record above is left intact.

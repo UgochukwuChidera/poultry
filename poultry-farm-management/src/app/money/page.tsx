@@ -1,5 +1,6 @@
 import { recordExpenseAction } from "@/app/actions";
 import { getPeriodSummary, getPrimaryFarm } from "@/lib/services/poultry-service";
+import { AppButton, FormCard, MetricCard, Notice, PageHeader, SecondaryButton, SelectField, TextField } from "@/components/ui";
 import { toDateInputValue } from "@/lib/utils";
 
 const expenseCategories = [
@@ -19,65 +20,53 @@ export default async function MoneyPage({ searchParams }: { searchParams?: Promi
   const state = await loadMoneyState(from, to);
 
   if (state.status === "config_error") {
-    return <p className="rounded bg-red-100 p-3 text-red-900">Set Supabase URL/key env vars (or SUPABASE_DB_URL fallback) and run Supabase migrations to track money.</p>;
+    return (
+      <Notice tone="error">Set the Supabase URL and key environment variables, then run Supabase migrations, to track money.</Notice>
+    );
   }
 
   if (state.status === "missing_farm") {
-    return <p className="rounded bg-amber-100 p-3 text-amber-900">Create a farm first to track money.</p>;
+    return <Notice tone="warning">Create a farm first on the Farm page to track money.</Notice>;
   }
 
   const { farm, summary } = state;
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-semibold">Money</h2>
+    <section className="space-y-6">
+      <PageHeader title="Money" description="Track revenue, expenses, and profit for a selected period." />
 
-      <form className="grid grid-cols-2 gap-2 rounded border bg-white p-4" method="get">
-        <label className="text-sm">
-          From
-          <input className="mt-1 w-full rounded border p-2" name="from" type="date" defaultValue={from} />
-        </label>
-        <label className="text-sm">
-          To
-          <input className="mt-1 w-full rounded border p-2" name="to" type="date" defaultValue={to} />
-        </label>
-        <button className="col-span-2 rounded bg-black px-4 py-2 text-white" type="submit">
-          Apply
-        </button>
-      </form>
+      <FormCard title="Period" description="Choose a date range to review.">
+        <form className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" method="get">
+          <TextField label="From" name="from" type="date" defaultValue={from} />
+          <TextField label="To" name="to" type="date" defaultValue={to} />
+          <SecondaryButton type="submit" className="w-full sm:w-auto">
+            Apply
+          </SecondaryButton>
+        </form>
+      </FormCard>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Revenue</h3>
-          <p className="text-lg font-semibold">₦{summary.revenue.toFixed(2)}</p>
-        </article>
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Expenses</h3>
-          <p className="text-lg font-semibold">₦{summary.expenses.toFixed(2)}</p>
-        </article>
-        <article className="rounded border bg-white p-4">
-          <h3 className="text-sm text-gray-600">Profit</h3>
-          <p className="text-lg font-semibold">₦{summary.profit.toFixed(2)}</p>
-        </article>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <MetricCard label="Revenue" value={`₦${summary.revenue.toFixed(2)}`} />
+        <MetricCard label="Expenses" value={`₦${summary.expenses.toFixed(2)}`} />
+        <MetricCard label="Profit" value={`₦${summary.profit.toFixed(2)}`} helper="Revenue minus expenses" />
       </div>
 
-      <form action={recordExpenseAction} className="space-y-2 rounded border bg-white p-4">
-        <h3 className="font-medium">Record expense</h3>
-        <input name="farmId" type="hidden" value={farm.id} readOnly />
-        <input className="w-full rounded border p-2" name="expenseDate" type="date" defaultValue={toDateInputValue()} required />
-        <select className="w-full rounded border p-2" name="category" defaultValue="feed">
-          {expenseCategories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        <input className="w-full rounded border p-2" name="amount" type="number" min="0.01" step="0.01" required />
-        <input className="w-full rounded border p-2" name="notes" placeholder="Notes" />
-        <button className="rounded bg-black px-4 py-2 text-white" type="submit">
-          Save expense
-        </button>
-      </form>
+      <FormCard title="Record expense" description="Add a new expense for this farm.">
+        <form action={recordExpenseAction} className="space-y-3">
+          <input name="farmId" type="hidden" value={farm.id} readOnly />
+          <TextField label="Date" name="expenseDate" type="date" defaultValue={toDateInputValue()} required />
+          <SelectField label="Category" name="category" defaultValue="feed">
+            {expenseCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </SelectField>
+          <TextField label="Amount" name="amount" type="number" min="0.01" step="0.01" required hint="In naira." />
+          <TextField label="Notes" name="notes" placeholder="Optional" />
+          <AppButton type="submit">Save expense</AppButton>
+        </form>
+      </FormCard>
     </section>
   );
 }
